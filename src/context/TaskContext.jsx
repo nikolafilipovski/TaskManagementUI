@@ -15,7 +15,7 @@ export function TaskProvider({ children }) {
         const user = { username, password };
 
         try {
-            const response = await axios.post("http://localhost:44334/login", user);
+            const response = await axios.post("https://localhost:44334/login", user);
             const token = response.data.token; 
             localStorage.setItem("jwtToken", token); 
         } catch (error) {
@@ -25,8 +25,8 @@ export function TaskProvider({ children }) {
 
     const fetchTasks = async () => {
         try {
-            const token = localStorage.getItem('jwtToken'); 
-            const response = await axios.get("http://localhost:44334/api/task/GetAllTasks", {
+            const token = localStorage.getItem('jwtToken');
+            const response = await axios.get("https://localhost:44334/api/Task/GetAllTasks", {
                 headers: {
                     Authorization: `Bearer ${token}` 
                 }
@@ -41,7 +41,7 @@ export function TaskProvider({ children }) {
     const addTask = async (task) => {
         try {
             const token = localStorage.getItem('jwtToken');
-            await axios.post("http://localhost:44334/api/task/CreateTask", task, {
+            await axios.post("https://localhost:44334/api/Task/CreateTask", task, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -56,11 +56,16 @@ export function TaskProvider({ children }) {
     const updateTask = async (task) => {
         try {
             const token = localStorage.getItem('jwtToken');
-            await axios.put(`http://localhost:44334/api/task/UpdateTask/${task.id}`, task, {
-                headers: {
-                    Authorization: `Bearer ${token}` 
+            await axios.put(
+                `https://localhost:44334/api/Task/UpdateTask/${task.id}`,
+                task, 
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json' 
+                    }
                 }
-            });
+            );
 
             fetchTasks();
         } catch (error) {
@@ -71,7 +76,7 @@ export function TaskProvider({ children }) {
     const deleteTask = async (id) => {
         try {
             const token = localStorage.getItem('jwtToken');
-            await axios.delete(`http://localhost:44334/api/task/DeleteTask/${id}`, {
+            await axios.delete(`https://localhost:44334/api/Task/DeleteTask/${id}`, {
                 headers: {
                     Authorization: `Bearer ${token}` 
                 }

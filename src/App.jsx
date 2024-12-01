@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { TaskList } from "./components/TaskList";
-import { AddTask } from "./components/AddTask";
+//import { TaskModal } from "./components/TaskModal";
 import { TaskProvider } from "./context/TaskContext";
 
 function App() {
@@ -9,7 +9,7 @@ function App() {
             <TaskProvider>
                 <Routes>
                     <Route path="/" element={<TaskList />} />
-                    <Route path="/" element={<AddTask />} />
+                    {/*<Route path="/" element={<TaskModal />} />*/}
                 </Routes>
             </TaskProvider>
         </Router>

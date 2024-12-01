@@ -1,15 +1,33 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useTasks } from "../context/TaskContext";
-import { AddTask } from "./AddTask";
+import { TaskModal } from "./TaskModal"; 
 
 export function TaskList() {
-    const { tasks, deleteTask, updateTask } = useTasks();
+    const { tasks, deleteTask } = useTasks();
+    const [showModal, setShowModal] = useState(false);
+    const [taskToEdit, setTaskToEdit] = useState(null); 
+
+    const handleEditClick = (task) => {
+        setTaskToEdit(task);  
+        setShowModal(true);    
+    };
+
+    const handleAddClick = () => {
+        setTaskToEdit(null);   
+        setShowModal(true);    
+    };
+
+    const handleCloseModal = () => {
+        setShowModal(false);  
+        setTaskToEdit(null);   
+    };
 
     return (
-        <div className="container mt-5">
-            <h1>Tasks table</h1>
+        <div className="container pt-5">
+            <h1 className="text-center">Tasks table</h1>
 
             <div className="mt-4">
+                <button className="btn btn-primary mb-3" onClick={handleAddClick}>Add New Task</button>
                 <table className="table table-striped">
                     <thead>
                         <tr>
@@ -41,13 +59,13 @@ export function TaskList() {
                                     <td>
                                         <button
                                             className="btn btn-warning btn-sm mx-1"
-                                            onClick={() => updateTask(task)}
+                                            onClick={() => handleEditClick(task)} 
                                         >
                                             Edit
                                         </button>
                                         <button
                                             className="btn btn-danger btn-sm mx-1"
-                                            onClick={() => deleteTask(task.id)}
+                                            onClick={() => deleteTask(task.id)} 
                                         >
                                             Delete
                                         </button>
@@ -58,7 +76,8 @@ export function TaskList() {
                     </tbody>
                 </table>
             </div>
-            {<AddTask />}
+
+            {showModal && <TaskModal task={taskToEdit} onClose={handleCloseModal} />}
         </div>
     );
 }
