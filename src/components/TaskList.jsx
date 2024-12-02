@@ -1,33 +1,85 @@
 import { useState } from "react";
 import { useTasks } from "../context/TaskContext";
-import { TaskModal } from "./TaskModal"; 
+import { TaskModal } from "./TaskModal";
 
 export function TaskList() {
     const { tasks, deleteTask } = useTasks();
     const [showModal, setShowModal] = useState(false);
-    const [taskToEdit, setTaskToEdit] = useState(null); 
+    const [taskToEdit, setTaskToEdit] = useState(null);
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const [tasksPerPage] = useState(5);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [statusFilter, setStatusFilter] = useState(""); 
+
+    const filteredTasks = tasks.filter(task =>
+        (task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            task.description.toLowerCase().includes(searchTerm.toLowerCase())) &&
+        (statusFilter === "" || task.status === statusFilter) 
+    );
+
+    const indexOfLastTask = currentPage * tasksPerPage;
+    const indexOfFirstTask = indexOfLastTask - tasksPerPage;
+    const currentTasks = filteredTasks.slice(indexOfFirstTask, indexOfLastTask);
+    const totalPages = Math.ceil(filteredTasks.length / tasksPerPage);
 
     const handleEditClick = (task) => {
-        setTaskToEdit(task);  
-        setShowModal(true);    
+        setTaskToEdit(task);
+        setShowModal(true);
     };
 
     const handleAddClick = () => {
-        setTaskToEdit(null);   
-        setShowModal(true);    
+        setTaskToEdit(null);
+        setShowModal(true);
     };
 
     const handleCloseModal = () => {
-        setShowModal(false);  
-        setTaskToEdit(null);   
+        setShowModal(false);
+        setTaskToEdit(null);
+    };
+
+    const handleSearch = (event) => {
+        setSearchTerm(event.target.value);
+        setCurrentPage(1);
+    };
+
+    const handleStatusChange = (event) => {
+        setStatusFilter(event.target.value);
+        setCurrentPage(1);
+    };
+
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
     };
 
     return (
-        <div className="container pt-5">
-            <h1 className="text-center">Tasks table</h1>
+        <div className="container">
+            <h1 className="text-center mb-5">Tasks Table</h1>
+
+            <div className="d-flex justify-content-between mb-3">
+                <input
+                    type="text"
+                    className="form-control w-50"
+                    placeholder="Search tasks..."
+                    value={searchTerm}
+                    onChange={handleSearch}
+                />
+                <select
+                    className="form-select w-25"
+                    value={statusFilter}
+                    onChange={handleStatusChange}
+                >
+                    <option value="">All Statuses</option>
+                    <option value="Completed">Completed</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Pending">Pending</option>
+                </select>
+                <button className="btn btn-primary" onClick={handleAddClick}>
+                    Add New Task
+                </button>
+            </div>
 
             <div className="mt-4">
-                <button className="btn btn-primary mb-3" onClick={handleAddClick}>Add New Task</button>
                 <table className="table table-striped">
                     <thead>
                         <tr>
@@ -39,16 +91,16 @@ export function TaskList() {
                         </tr>
                     </thead>
                     <tbody>
-                        {tasks.length === 0 ? (
+                        {currentTasks.length === 0 ? (
                             <tr>
                                 <td colSpan="5" className="text-center">
                                     No tasks available
                                 </td>
                             </tr>
                         ) : (
-                            tasks.map((task, index) => (
+                            currentTasks.map((task, index) => (
                                 <tr key={task.id}>
-                                    <th scope="row">{index + 1}</th>
+                                    <th scope="row">{indexOfFirstTask + index + 1}</th>
                                     <td>{task.title}</td>
                                     <td>{task.description}</td>
                                     <td>
@@ -59,13 +111,13 @@ export function TaskList() {
                                     <td>
                                         <button
                                             className="btn btn-warning btn-sm mx-1"
-                                            onClick={() => handleEditClick(task)} 
+                                            onClick={() => handleEditClick(task)}
                                         >
                                             Edit
                                         </button>
                                         <button
                                             className="btn btn-danger btn-sm mx-1"
-                                            onClick={() => deleteTask(task.id)} 
+                                            onClick={() => deleteTask(task.id)}
                                         >
                                             Delete
                                         </button>
@@ -75,6 +127,18 @@ export function TaskList() {
                         )}
                     </tbody>
                 </table>
+            </div>
+
+            <div className="d-flex justify-content-center">
+                {Array.from({ length: totalPages }, (_, index) => (
+                    <button
+                        key={index + 1}
+                        className={`btn mx-1 ${currentPage === index + 1 ? "btn-primary" : "btn-outline-primary"}`}
+                        onClick={() => handlePageChange(index + 1)}
+                    >
+                        {index + 1}
+                    </button>
+                ))}
             </div>
 
             {showModal && <TaskModal task={taskToEdit} onClose={handleCloseModal} />}
